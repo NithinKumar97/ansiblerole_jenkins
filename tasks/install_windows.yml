@@ -1,1 +1,27 @@
+---
+- name: Install Jenkins slave dependencies
+  win_chocolatey:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - jdk8
+    - git
+
+- name: Create Jenkins slave directory
+  win_file:
+    path: "{{ jenkins_agent_workdir }}"
+    state: directory
+
+- name: Download Jenkins agent jar
+  win_get_url:
+    url: "{{ jenkins_url }}/jnlpJars/agent.jar"
+    dest: "{{ jenkins_agent_jar_path }}"
+
+- name: Configure Jenkins slave service
+  win_service:
+    name: "{{ jenkins_agent_service_name }}"
+    start_mode: auto
+    state: started
+    path: "C:\\Program Files\\Java\\jre1.8.0_241\\bin\\java.exe"
+    arguments: "-jar {{ jenkins_agent_jar_path }} -jnlpUrl {{ jenkins_url }}/computer/{{ inventory_hostname }}/slave-agent.jnlp -secret {{ jenkins_agent_secret }} -workDir {{ jenkins_agent_workdir }}"
 
