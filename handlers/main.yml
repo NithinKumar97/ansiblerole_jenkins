@@ -1,1 +1,8 @@
+---
+- name: Restart Jenkins slave
+  systemd:
+    name: jenkins-slave
+    state: restarted
+    enabled: yes
+  when: ansible_os_family == "Debian"
 
