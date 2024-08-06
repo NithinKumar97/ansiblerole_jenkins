@@ -1,1 +1,9 @@
+---
+- name: Install Jenkins Slave
+  include_tasks: install_linux.yml
+  when: ansible_os_family == "Debian"
+
+- name: Install Jenkins Slave
+  include_tasks: install_windows.yml
+  when: ansible_os_family == "Windows"
 
