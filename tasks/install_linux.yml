@@ -1,1 +1,26 @@
+---
+- name: Install Jenkins slave dependencies
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop:
+    - openjdk-8-jdk
+    - git
+
+- name: Create Jenkins slave directory
+  file:
+    path: "{{ jenkins_agent_workdir }}"
+    state: directory
+
+- name: Download Jenkins agent jar
+  get_url:
+    url: "{{ jenkins_url }}/jnlpJars/agent.jar"
+    dest: "{{ jenkins_agent_jar_path }}"
+
+- name: Create Jenkins slave service
+  template:
+    src: linux_jenkins_slave.service.j2
+    dest: /etc/systemd/system/jenkins-slave.service
+  notify: Restart Jenkins slave
 
