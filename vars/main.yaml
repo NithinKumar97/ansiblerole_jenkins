@@ -1,1 +1,6 @@
+jenkins_agent_service_name: "jenkins-agent"
+jenkins_agent_jar_path: "{{ ansible_os_family == 'Windows' | ternary('C:\\jenkins\\agent.jar', '/home/jenkins/agent.jar') }}"
+jenkins_url: "http://your-jenkins-url"
+jenkins_agent_secret: "your_agent_secret"
+jenkins_agent_workdir: "{{ ansible_os_family == 'Windows' | ternary('C:\\jenkins\\workspace', '/home/jenkins/workspace') }}"
 
