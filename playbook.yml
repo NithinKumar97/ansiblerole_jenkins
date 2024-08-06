@@ -1,0 +1,55 @@
+---
+- name: Provision Jenkins slaves on AWS EC2 and configure Jenkins agents
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - vars/aws_credentials.yml
+  tasks:
+    - name: Launch Linux Jenkins slave instance
+      ec2:
+        key_name: "{{ aws_key_name }}"
+        instance_type: t2.micro
+        image: "{{ aws_linux_image_id }}"
+        region: "{{ aws_region }}"
+        group: "{{ aws_security_group }}"
+        count: 1
+        instance_tags:
+          Name: JenkinsLinuxSlave
+      register: ec2_linux
+
+    - name: Launch Windows Jenkins slave instance
+      ec2:
+        key_name: "{{ aws_key_name }}"
+        instance_type: t2.micro
+        image: "{{ aws_windows_image_id }}"
+        region: "{{ aws_region }}"
+        group: "{{ aws_security_group }}"
+        count: 1
+        instance_tags:
+          Name: JenkinsWindowsSlave
+      register: ec2_windows
+
+    - name: Add new Linux instances to inventory
+      add_host:
+        name: "{{ item.public_ip }}"
+        group: linux_slaves
+        ansible_user: ubuntu
+        ansible_ssh_private_key_file: /path/to/your/private/key
+      loop: "{{ ec2_linux.instances }}"
+
+    - name: Add new Windows instances to inventory
+      add_host:
+        name: "{{ item.public_ip }}"
+        group: windows_slaves
+        ansible_user: Administrator
+        ansible_password: "{{ windows_admin_password }}"
+        ansible_connection: winrm
+        ansible_winrm_transport: ntlm
+        ansible_winrm_server_cert_validation: ignore
+      loop: "{{ ec2_windows.instances }}"
+
+- name: Configure Jenkins slaves
+  hosts: linux_slaves:windows_slaves
+  become: yes
+  roles:
+    - jenkins_slave
