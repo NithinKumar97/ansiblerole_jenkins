@@ -3,4 +3,3 @@ jenkins_agent_jar_path: "{{ ansible_os_family == 'Windows' | ternary('C:\\jenkin
 jenkins_url: "http://your-jenkins-url"
 jenkins_agent_secret: "your_agent_secret"
 jenkins_agent_workdir: "{{ ansible_os_family == 'Windows' | ternary('C:\\jenkins\\workspace', '/home/jenkins/workspace') }}"
-
